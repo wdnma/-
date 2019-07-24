@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .map {
+            width: 800px;
+            height: 600px;
+            background: #ccc;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<div class="map"></div>
+
+<script>
+
+    //食物
+    (function () {
+        var elements = [];//存放每个食物
+
+        //食物的构造函数
+        function Food(x, y, width, height, color) {
+            this.width = width || 20;
+            this.height = height || 20;
+            this.color = color || "green";
+            this.x = 0;
+            this.y = 0;
+        }
+
+        //创建食物到map中
+        Food.prototype.init = function (map) {
+            //调用删除食物函数
+            remove();
+
+
+            //创建div
+            var div = document.createElement("div");
+            //为div设置样式
+            div.style.width = this.width + "px";
+            div.style.height = this.height + "px";
+            div.style.backgroundColor = this.color;
+            //脱离文档流
+            div.style.position = "absolute";
+            //随机出食物位置
+            this.x = parseInt(Math.random() * (map.offsetWidth / this.width)) * this.width;
+            this.y = parseInt(Math.random() * (map.offsetHeight / this.height)) * this.width;
+            div.style.left = this.x + "px";
+            div.style.top = this.y + "px";
+            //创建子元素
+            map.appendChild(div);
+
+            //将创建的div放入
+            elements.push(div);
+        }
+
+        //私有函数————删除食物
+        function remove() {
+            for (var i = 0; i < elements.length; i++) {
+                var ele = elements[i];
+                //找到父级元素后再删除他的子元素
+                ele.parentNode.removeChild(ele);
+                //数组中的也要删除
+                elements.splice(i, 1);
+            }
+        }
+
+        //暴露给外部使用
+        window.Food = Food;
+    }());
+
+    //蛇
+    (function () {
+
+        //存放每个小蛇div
+        var elements = [];
+
+        //蛇的构造函数
+        function Snake(width, height, direction) {
+
+            //宽和高
+            this.width = width || 20;
+            this.height = height || 20;
+            //方向
+            this.direction = direction || "right";
+
+            //蛇的身体(数组)
+            this.body = [
+                {x: 3, y: 1, color: "red"},//蛇的头部
+                {x: 2, y: 1, color: "orange"},
+                {x: 1, y: 1, color: "orange"}
+            ];
+        }
+
+        //原型中初始化蛇的方法
+        Snake.prototype.init = function (map) {
+
+            //调用删除函数
+            remove();
+
+            for (var i = 0; i < this.body.length; i++) {
+                //将每个div当成对象存放
+                var obj = this.body[i];
+
+                //创建div
+                var div = document.createElement("div");
+                //将创建的div放入到map中
+                map.appendChild(div);
+
+                //为每个div设置样式
+                div.style.position = "absolute";
+                div.style.width = this.width + "px";
+                div.style.height = this.height + "px";
+                div.style.backgroundColor = obj.color;
+                //div的位置
+                div.style.left = obj.x * this.width + "px";
+                div.style.top = obj.y * this.height + "px";
+
+                //方向
+
+                //将div添加到数组中————为了删除
+                elements.push(div);
+            }
+        }
+
+        //原型中添加蛇移动方法
+        Snake.prototype.move = function (food, map) {
+            //只改变身体的坐标
+            var i = this.body.length - 1;
+
+            for (; i > 0; i--) {
+                this.body[i].x = this.body[i - 1].x;
+                this.body[i].y = this.body[i - 1].y;
+            }
+
+            //改变头部位置  判断方向
+            switch (this.direction) {
+                case "left":
+                    this.body[0].x -= 1;
+                    break;
+                case "right":
+                    this.body[0].x += 1;
+                    break;
+                case "top":
+                    this.body[0].y -= 1;
+                    break;
+                case "bottom":
+                    this.body[0].y += 1;
+                    break;
+            }
+
+            //判断小蛇是否吃到食物
+            var headX=this.body[0].x*this.width;
+            var headY=this.body[0].y*this.height;
+            
+            if (headX==food.x&&headY==food.y){
+                //获取最后一个尾巴
+                var last=this.body[this.body.length-1];
+                //吃到食物后复制最后一个尾巴
+                this.body.push({
+                    x:last.x,
+                    y:last.y,
+                    color:last.color
+                });
+
+                //重新刷新食物
+                food.init(map);
+            }
+
+            //判断小蛇是否咬到自己
+            var j=this.body.length-1;
+            for (;j>0;j--){
+                // console.log(this.body[0].x+"======"+this.body[j].x);
+                if (this.body[0].x==this.body[j].x&&this.body[0].y==this.body[j].y) {
+                    alert("游戏结束！");
+
+                    //游戏初始化
+                     this.Game.init();
+                }
+            }
+
+        }
+
+        //删除之前的小蛇div
+        function remove() {
+            var i = elements.length - 1;
+
+            //使用倒循环从蛇尾开始删除
+            for (; i >= 0; i--) {
+                var ele = elements[i];
+                //删除div
+                ele.parentNode.removeChild(ele);
+                //数组中也要删除
+                elements.splice(i, 1);
+            }
+        }
+
+        //设置为全局对象
+        window.Snake = Snake;
+    }());
+
+    //游戏
+    (function () {
+        //防止定时器中的this调用的是window
+        var that=null;
+        //游戏构造函数
+        function Game(map) {
+            this.map=map;
+            this.food=new Food;
+            this.snake=new Snake;
+            //此处的this
+            that=this;
+        }
+        //游戏初始化的函数
+        Game.prototype.init=function () {
+            //初始化
+            this.food.init(this.map);
+            this.snake.init(this.map);
+            //小蛇移动
+            // setInterval(function () {
+            //     that.snake.move(that.food,that.map);
+            //     that.snake.init(that.map);
+            // },150);
+            //初始化的同时调用移动小蛇方法
+            this.runSnake(this.food,this.map);
+            //调用按键控制小蛇移动方法
+            this.bindKey();
+        }
+
+        //小蛇移动函数
+        Game.prototype.runSnake=function(food,map){
+
+            //自动移动
+            var timeId=setInterval(function () {
+                //调用Snake对象中的move方法移动小蛇
+                this.snake.move(this.food,this.map);
+                //移动后初始化小蛇
+                this.snake.init(this.map);
+
+                //小蛇移动最大坐标
+                var maxX=map.offsetWidth/this.snake.width;
+                var maxY=map.offsetHeight/this.snake.height;
+
+                //获取小蛇头部当前移动的坐标
+                var headX=this.snake.body[0].x;
+                var headY=this.snake.body[0].y;
+
+                //判断小蛇是否撞到墙(横坐标)
+                if (headX<=0||headX>=maxX){
+                    clearInterval(timeId);
+                    alert("游戏结束！");
+                }
+                //判断小蛇是否撞到墙(纵坐标)
+                if (headY<=0||headY>=maxY){
+                    clearInterval(timeId);
+                    alert("游戏结束！");
+                }
+
+            }.bind(that),150)
+        }
+        //通过键盘控制小蛇方向的函数
+        Game.prototype.bindKey=function(){
+            //键盘按下事件，获取按下的按钮
+            document.addEventListener("keydown",function(e){
+                //获取按下的键
+                switch (e.keyCode){
+                    //将direction设置成按下的键
+                    case 37:
+                        if (this.snake.direction=="right") {//防止直接蛇掉头的判断
+                            break;
+                        }
+                        this.snake.direction="left";break;
+                    case 38:
+                        if (this.snake.direction=="bottom") {
+                            break;
+                        }
+                        this.snake.direction="top";break;
+                    case 39:
+                        if (this.snake.direction=="left") {
+                            break;
+                        }
+                        this.snake.direction="right";break;
+                    case 40:
+                        if (this.snake.direction=="top") {
+                            break;
+                        }
+                        this.snake.direction="bottom";break;
+                }
+            }.bind(that),false)
+        }
+        window.Game=Game;
+    }());
+
+    var gm=new Game(document.querySelector(".map"));
+    gm.init();
+    // var fd = new Food();
+    // fd.init(document.querySelector(".map"));
+    //
+    // var snake = new Snake();
+    // snake.init(document.querySelector(".map"));
+    //
+    // setInterval(function () {
+    //     snake.move(fd,document.querySelector(".map"));
+    //     snake.init(document.querySelector(".map"));
+    // },150)
+</script>
+</body>
+</html>
