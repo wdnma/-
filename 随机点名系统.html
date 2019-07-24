@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>随机点名系统</title>
+<style>
+	#dv{
+		margin: 0px auto;
+		text-align:center;
+	}
+	input{
+		display: inline-block;
+		margin: 0px auto;
+		margin-right: 45px;
+		text-align: center;
+		background-color: #4CAF50; /* Green */
+	    border: none;
+	    color: white;
+	    padding: 15px 32px;
+	    text-decoration: none;
+	    font-size: 16px; 
+	    border-radius: 4px;
+	}
+	button:hover{
+		background-color: black;
+	}
+	table{
+		width: 800px;
+		height: 300px;
+		margin:50px auto;
+	}
+	td{
+		text-align: center;
+		vertical-align: middle;
+		width: 80px;
+		height: 45px;
+		background-color:Gray;
+	}
+</style>
+</head>
+<body>
+	<embed src="musics/和田薫 - 时代を超える想い2.flac" hidden="true" autostart="true" loop="true">
+	<h3 align="center">是哪个幸运儿被我点到了呢？</h3>
+	<div>
+		<table >
+			<tr>
+				<td>桔梗</td>
+				<td>戈薇</td>
+				<td>奈落</td>
+				<td>杀生丸</td>
+				<td>犬夜叉</td>
+			</tr>
+			<tr>
+				<td>漩涡鸣人</td>
+				<td>宇智波佐助</td>
+				<td>春野樱</td>
+				<td>大蛇丸</td>
+				<td>六道仙人</td>
+			</tr>
+			<tr>
+				<td>赖胜豪</td>
+				<td>江B梦</td>
+				<td>邱宇璇</td>
+				<td>许文强</td>
+				<td>严浩南</td>
+			</tr>
+			<tr>
+				<td>马云</td>
+				<td>马化腾</td>
+				<td>王健林</td>
+				<td>刘强东</td>
+				<td>雷军</td>
+			</tr>
+		</table>
+	</div>
+	<div id="dv">
+		<input type="button" name="" value="随机一个" id="btn1">
+		<input type="button" name="" value="随机三个" id="btn2">
+	</div>
+<script>
+	var move;
+	var tds=document.getElementsByTagName("td");
+	var mun=Math.floor(Math.random()*tds.length);
+	document.getElementById("btn1").onclick=start;
+	document.getElementById("btn2").onclick=start3;
+
+	function start(){
+		if(document.getElementById("btn1").value=="随机一个"){
+			document.getElementById("btn1").value="停止";
+			move=setInterval(moveing, 200);
+		}else {
+			clearInterval(move);
+			document.getElementById("btn1").value="随机一个";
+		}
+	}
+	function start3(){
+		if(document.getElementById("btn2").value=="随机三个"){
+			document.getElementById("btn2").value="停止";
+				move=setInterval(moveing3, 200);
+		}else {
+			clearInterval(move);
+			document.getElementById("btn2").value="随机三个";
+		}
+	}
+	function moveing(){
+		for (var i = 0; i < tds.length; i++) {
+			tds[i].style.backgroundColor="Gray";
+		}
+		//清除之前被选中的
+		var mun=Math.floor(Math.random()*tds.length);
+		tds[mun].style.backgroundColor="red";
+	}
+	function moveing3 () {
+		for (var i = 0; i < tds.length; i++) {
+			tds[i].style.backgroundColor="Gray";
+		}
+		for (var i = 0; i < 3; i++) {
+			var mun=Math.floor(Math.random()*tds.length);
+			tds[mun].style.backgroundColor="red";
+		}
+	}
+</script>
+</body>
+</html>

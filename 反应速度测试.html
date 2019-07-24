@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    body{
+      display: flex;
+      height: 600px;
+      align-items: center;
+      justify-content: center;
+    }
+    #main{
+      width: 400px;
+      height: 200px;
+      background-color: #0099cc;
+    }
+    #down{
+      text-align: center;
+      margin-top: 50px;
+    }
+    #down button{
+      width: 60px;
+      height: 40px;
+      margin: 0 30px;
+    }
+    P{
+      background-color: #4CAF50;
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <P>点击“开始”开始测试,当背景颜色改变时按下“停止”</p>
+    <div id="down">
+      <button class="btn" id="start">开始</button>
+      <button class="btn" id="stop">停止</button>
+    </div>
+  </div>
+
+<script>
+  var time1;
+  var time2;
+  var body=document.body;
+  //开始按钮
+  var start=document.getElementById("start");
+  //停止按钮
+  var stop=document.getElementById("stop");
+
+  //为开始按钮注册点击事件
+  start.onclick=function(){
+    //创建一个随机数
+    var num=Math.floor(Math.random()*8000+2000);
+    setTimeout(function () {
+      body.style.backgroundColor="red";
+      //给第一次时间赋值
+      time1=Date.now();
+    },num)
+  }
+
+  //为停止按钮注册点击事件
+  stop.onclick=function () {
+    //给第二次时间赋值
+    time2=Date.now();
+    //计算出相差多少秒
+    var second=((time2-time1)/1000).toFixed(2);//保留四位小数四舍五入
+
+    alert("你的反应时间为"+second+"秒");
+
+    body.style.backgroundColor="";
+  }
+
+
+</script>
+</body>
+</html>
